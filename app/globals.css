@@ -69,26 +69,26 @@ nav { position: sticky; top: 0; z-index: 20; height: 90px; display: grid; grid-t
 .quote-line { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; margin: 17px 0 8px; }
 .quote-line strong { font-size: clamp(36px, 4vw, 54px); letter-spacing: -.05em; }
 .quote-line span { font-size: 12px; }
-.down { color: var(--accent); }
-.up-text { color: var(--green); }
+.down { color: var(--green); }
+.up-text { color: var(--accent); }
 .quote-meta { display: flex; justify-content: space-between; color: #77767e; font-size: 10px; }
 .spark { margin: 24px -5px -6px; height: 60px; }
 .spark svg { width: 100%; height: 100%; overflow: visible; }
 .spark path { fill: none; stroke: var(--accent); stroke-width: 2; }
 
-.section-head { display: flex; justify-content: space-between; align-items: end; padding: 58px 0 28px; }
+.section-head { display: flex; justify-content: space-between; align-items: end; padding: 29px 0 28px; }
 .eyebrow { display: block; color: #75747c; font-size: 9px; letter-spacing: .18em; font-weight: bold; margin-bottom: 13px; }
 .section-head h2 { margin: 0; font-size: 28px; letter-spacing: -.035em; font-weight: 500; }
 .section-head p { color: #6f6e75; font-size: 10px; letter-spacing: .08em; }
-.cards { display: grid; gap: 20px; }
+.cards { display: grid; gap: 20px; padding-bottom: 100px; }
 .year-card { scroll-margin-top: 108px; background: linear-gradient(135deg, #171719, #111113); border: 1px solid #27272b; border-radius: 22px; overflow: hidden; animation: rise .5s ease both; animation-delay: var(--delay); }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 .card-head { min-height: 108px; padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
 .year-row { display: flex; align-items: center; gap: 14px; }
 .year-row h2 { margin: 0; font-size: 34px; letter-spacing: -.04em; }
 .change { border-radius: 99px; padding: 5px 9px; font-size: 10px; font-weight: 700; }
-.change.up { background: rgba(84,209,155,.11); color: var(--green); }
-.change.down { background: rgba(255,56,92,.1); color: var(--accent); }
+.change.up { background: rgba(255,56,92,.1); color: var(--accent); }
+.change.down { background: rgba(84,209,155,.11); color: var(--green); }
 .range { display: grid; text-align: right; gap: 6px; }
 .range span { color: #6f6e75; font-size: 9px; text-transform: uppercase; letter-spacing: .12em; }
 .range strong { font-size: 12px; font-weight: 500; }
@@ -118,7 +118,7 @@ nav { position: sticky; top: 0; z-index: 20; height: 90px; display: grid; grid-t
 .ranking-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 15px; }
 .ranking-title span { font-size: 11px; font-weight: 700; }
 .ranking-title small { font-size: 8px; color: var(--accent); letter-spacing: .14em; white-space: nowrap; }
-.price-ranking.bottom .ranking-title small { color: #7aa2ff; }
+.price-ranking.bottom .ranking-title small { color: var(--green); }
 .price-extreme { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: center; padding: 18px 0; border-top: 1px solid #29292d; }
 .rank { font-size: 10px; color: #57565e; }
 .price-extreme div { display: grid; gap: 5px; min-width: 0; }

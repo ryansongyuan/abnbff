@@ -33,13 +33,14 @@ body::before {
 }
 
 main { width: min(1380px, calc(100% - 64px)); margin: 0 auto; }
-nav { height: 90px; display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 1px solid var(--line); }
+nav { position: sticky; top: 0; z-index: 20; height: 90px; display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 1px solid var(--line); background: rgba(9,9,10,.9); backdrop-filter: blur(18px); }
 .brand { display: flex; align-items: center; gap: 11px; font-size: 14px; font-weight: 900; letter-spacing: .08em; }
 .brand-name > span { color: var(--accent); }
 .brand-mark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); color: white; font-weight: 900; }
-.nav-center { display: flex; gap: 28px; color: #8c8b92; font-size: 13px; }
+.nav-center { display: flex; gap: 30px; color: #8c8b92; font-size: 16px; }
 .nav-center a { padding: 36px 0 32px; position: relative; }
 .nav-center a:hover, .nav-center .active { color: white; }
+.nav-center .active { font-weight: 800; }
 .nav-center .active::after { content:""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); }
 .watch { border: 1px solid #38383e; border-radius: 999px; background: transparent; padding: 10px 16px; font-size: 12px; cursor: pointer; }
 .watch:hover { border-color: #6b6b72; background: #141416; }
@@ -61,6 +62,7 @@ nav { height: 90px; display: grid; grid-template-columns: 1fr auto; align-items:
 .quote-line strong { font-size: clamp(36px, 4vw, 54px); letter-spacing: -.05em; }
 .quote-line span { font-size: 12px; }
 .down { color: var(--accent); }
+.up-text { color: var(--green); }
 .quote-meta { display: flex; justify-content: space-between; color: #77767e; font-size: 10px; }
 .spark { margin: 24px -5px -6px; height: 60px; }
 .spark svg { width: 100%; height: 100%; overflow: visible; }
@@ -71,7 +73,7 @@ nav { height: 90px; display: grid; grid-template-columns: 1fr auto; align-items:
 .section-head h2 { margin: 0; font-size: 28px; letter-spacing: -.035em; font-weight: 500; }
 .section-head p { color: #6f6e75; font-size: 10px; letter-spacing: .08em; }
 .cards { display: grid; gap: 20px; }
-.year-card { scroll-margin-top: 18px; background: linear-gradient(135deg, #171719, #111113); border: 1px solid #27272b; border-radius: 22px; overflow: hidden; animation: rise .5s ease both; animation-delay: var(--delay); }
+.year-card { scroll-margin-top: 108px; background: linear-gradient(135deg, #171719, #111113); border: 1px solid #27272b; border-radius: 22px; overflow: hidden; animation: rise .5s ease both; animation-delay: var(--delay); }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 .card-head { min-height: 108px; padding: 26px 30px 22px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
 .year-row { display: flex; align-items: center; gap: 14px; }
@@ -110,7 +112,7 @@ nav { height: 90px; display: grid; grid-template-columns: 1fr auto; align-items:
 .rank { font-size: 10px; color: #57565e; }
 .peak div { display: grid; gap: 5px; }
 .peak strong { font-size: 20px; letter-spacing: -.03em; }
-.peak div span { color: #77767e; font-size: 9px; }
+.peak div span { color: #8d8c94; font-size: 12px; }
 .load { display: flex; align-items: center; gap: 16px; margin: 32px auto 80px; background: transparent; border: 1px solid #343439; padding: 13px 20px; border-radius: 99px; cursor: pointer; font-size: 11px; }
 .load:hover { background: #171719; border-color: #65656d; }
 .load span { color: var(--accent); font-size: 16px; }

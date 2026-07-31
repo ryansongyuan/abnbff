@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import stockData from "./abnb-data.json";
 
 type YearData = {
   year: number;
@@ -10,58 +11,45 @@ type YearData = {
   low: number;
   high: number;
   volume: string;
-  prices: number[];
+  days: { date: string; price: number }[];
   top: { price: number; date: string }[];
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const YEARS = stockData.years as YearData[];
 
-const YEARS: YearData[] = [
-  {
-    year: 2025, change: -4.8, open: 132.18, close: 125.84, low: 100.54, high: 163.93, volume: "876M",
-    prices: [132, 141, 119, 122, 127, 132, 143, 126, 118, 121, 130, 126],
-    top: [{ price: 163.93, date: "Feb 14" }, { price: 160.10, date: "Feb 13" }, { price: 158.72, date: "Feb 18" }],
-  },
-  {
-    year: 2024, change: 12.7, open: 136.14, close: 131.41, low: 110.38, high: 170.10, volume: "1.06B",
-    prices: [145, 157, 165, 158, 145, 151, 139, 117, 127, 136, 137, 131],
-    top: [{ price: 170.10, date: "Mar 21" }, { price: 168.95, date: "Mar 22" }, { price: 166.99, date: "Mar 20" }],
-  },
-  {
-    year: 2023, change: 59.4, open: 85.50, close: 136.14, low: 81.91, high: 154.95, volume: "1.25B",
-    prices: [106, 124, 119, 120, 112, 128, 152, 132, 137, 119, 126, 136],
-    top: [{ price: 154.95, date: "Jul 31" }, { price: 153.33, date: "Jul 28" }, { price: 152.37, date: "Aug 01" }],
-  },
-  {
-    year: 2022, change: -48.7, open: 166.49, close: 85.50, low: 81.91, high: 191.73, volume: "1.48B",
-    prices: [155, 165, 173, 153, 120, 89, 110, 115, 105, 113, 97, 86],
-    top: [{ price: 191.73, date: "Feb 16" }, { price: 190.00, date: "Feb 15" }, { price: 186.64, date: "Feb 17" }],
-  },
-  {
-    year: 2021, change: 13.4, open: 147.00, close: 166.49, low: 129.71, high: 216.84, volume: "1.71B",
-    prices: [183, 206, 189, 172, 140, 153, 145, 155, 168, 170, 193, 166],
-    top: [{ price: 216.84, date: "Feb 11" }, { price: 215.40, date: "Feb 12" }, { price: 212.68, date: "Nov 17" }],
-  },
-];
+function parseDate(value: string) {
+  const [month, day, year] = value.split("/").map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(parseDate(value));
+}
 
 function MiniChart({ data }: { data: YearData }) {
   const [active, setActive] = useState<number | null>(null);
   const width = 760;
   const height = 254;
   const pad = 18;
-  const min = Math.min(...data.prices) - 8;
-  const max = Math.max(...data.prices) + 8;
-  const pts = data.prices.map((price, i) => ({
-    price,
-    x: pad + (i * (width - pad * 2)) / (data.prices.length - 1),
-    y: pad + ((max - price) * (height - pad * 2)) / (max - min),
-  }));
+  const min = Math.min(...data.days.map((day) => day.price)) - 6;
+  const max = Math.max(...data.days.map((day) => day.price)) + 6;
+  const start = Date.UTC(data.year, 0, 1);
+  const end = Date.UTC(data.year + 1, 0, 1);
+  const pts = data.days.map((day) => {
+    const price = day.price;
+    return {
+      ...day,
+      x: pad + ((parseDate(day.date).getTime() - start) / (end - start)) * (width - pad * 2),
+      y: pad + ((max - price) * (height - pad * 2)) / (max - min),
+    };
+  });
   const line = pts.map((p, i) => `${i ? "L" : "M"}${p.x},${p.y}`).join(" ");
   const area = `${line} L${pts.at(-1)!.x},${height} L${pts[0].x},${height} Z`;
 
   return (
     <div className="chart-wrap" onMouseLeave={() => setActive(null)}>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${data.year} ABNB monthly price chart`}>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${data.year} ABNB daily closing price chart`}>
         <defs>
           <linearGradient id={`fill-${data.year}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#ff385c" stopOpacity=".26" />
@@ -73,7 +61,7 @@ function MiniChart({ data }: { data: YearData }) {
         <path d={line} className="price-line" />
         {pts.map((p, i) => (
           <g key={i}>
-            <rect className="hit" x={p.x - 28} y="0" width="56" height={height} onMouseEnter={() => setActive(i)} onTouchStart={() => setActive(i)} />
+            <rect className="hit" x={p.x - 3} y="0" width="6" height={height} onMouseEnter={() => setActive(i)} onTouchStart={() => setActive(i)} />
             {active === i && <>
               <line className="crosshair" x1={p.x} x2={p.x} y1="0" y2={height} />
               <circle className="point" cx={p.x} cy={p.y} r="5" />
@@ -83,7 +71,7 @@ function MiniChart({ data }: { data: YearData }) {
       </svg>
       {active !== null && (
         <div className="tooltip" style={{ left: `${(pts[active].x / width) * 100}%`, top: `${(pts[active].y / height) * 100}%` }}>
-          <span>{MONTHS[active]} {data.year}</span>
+          <span>{formatDate(pts[active].date)}</span>
           <strong>${pts[active].price.toFixed(2)}</strong>
         </div>
       )}
@@ -98,7 +86,7 @@ function YearCard({ data, index }: { data: YearData; index: number }) {
       <div className="card-head">
         <div>
           <span className="eyebrow">YEAR IN REVIEW</span>
-          <div className="year-row"><h2>{data.year}</h2><span className={data.change >= 0 ? "change up" : "change down"}>{data.change >= 0 ? "↗" : "↘"} {Math.abs(data.change)}%</span></div>
+          <div className="year-row"><h2>{data.year}</h2><span className={data.change >= 0 ? "change up" : "change down"}>{data.change >= 0 ? "↗" : "↘"} {Math.abs(data.change).toFixed(1)}%</span></div>
         </div>
         <div className="range"><span>Annual range</span><strong>${data.low.toFixed(2)} — ${data.high.toFixed(2)}</strong></div>
       </div>
@@ -116,7 +104,7 @@ function YearCard({ data, index }: { data: YearData; index: number }) {
           {data.top.map((item, i) => (
             <div className="peak" key={item.date}>
               <span className="rank">0{i + 1}</span>
-              <div><strong>${item.price.toFixed(2)}</strong><span>{item.date}, {data.year}</span></div>
+              <div><strong>${item.price.toFixed(2)}</strong><span>{formatDate(item.date)}</span></div>
             </div>
           ))}
         </aside>
@@ -126,33 +114,60 @@ function YearCard({ data, index }: { data: YearData; index: number }) {
 }
 
 export default function Home() {
+  const [activeYear, setActiveYear] = useState(YEARS[0].year);
+  const latestDays = YEARS[0].days.slice(-35);
+  const sparkMin = Math.min(...latestDays.map((day) => day.price));
+  const sparkMax = Math.max(...latestDays.map((day) => day.price));
+  const sparkPath = latestDays.map((day, index) => {
+    const x = (index / (latestDays.length - 1)) * 300;
+    const y = 8 + ((sparkMax - day.price) / (sparkMax - sparkMin)) * 44;
+    return `${index ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const deltaClass = stockData.delta >= 0 ? "up-text" : "down";
+  const deltaSign = stockData.delta >= 0 ? "+" : "−";
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActiveYear(Number(visible.target.id.replace("year-", "")));
+      },
+      { rootMargin: "-95px 0px -55% 0px", threshold: [0.05, 0.2, 0.5] },
+    );
+    YEARS.forEach(({ year }) => {
+      const element = document.getElementById(`year-${year}`);
+      if (element) observer.observe(element);
+    });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <main>
       <nav>
         <a className="brand" href="#top" aria-label="ABNB Final Fight home"><span className="brand-mark">$</span><span className="brand-name">ABNB <span>FINAL FIGHT</span></span></a>
         <div className="nav-center">
-          {YEARS.map((item, index) => <a className={index === 0 ? "active" : ""} href={`#year-${item.year}`} key={item.year}>{item.year}</a>)}
+          {YEARS.map((item) => <a className={activeYear === item.year ? "active" : ""} href={`#year-${item.year}`} key={item.year}>{item.year}</a>)}
         </div>
       </nav>
 
       <section className="hero" id="top">
         <div className="hero-copy">
           <div className="ticker"><img className="ticker-logo" src="/airbnb-logo.png" alt="Airbnb logo" /><div><b>Airbnb, Inc.</b><span>NASDAQ · ABNB</span></div></div>
-          <h1>Latest close.<br /><em>$125.84</em></h1>
+          <h1>Latest close.<br /><em>${stockData.latest.toFixed(2)}</em></h1>
         </div>
         <div className="quote">
           <div className="live"><i /> MARKET CLOSED</div>
-          <div className="quote-line"><strong>$125.84</strong><span className="down">−2.18 · 1.70%</span></div>
-          <div className="quote-meta"><span>Sample snapshot</span><span>USD</span></div>
+          <div className="quote-line"><strong>${stockData.latest.toFixed(2)}</strong><span className={deltaClass}>{deltaSign}{Math.abs(stockData.delta).toFixed(2)} · {Math.abs(stockData.deltaPercent).toFixed(2)}%</span></div>
+          <div className="quote-meta"><span>Nasdaq · {formatDate(stockData.updated)}</span><span>USD</span></div>
           <div className="spark">
-            <svg viewBox="0 0 300 60"><path d="M0 12 C25 8 37 25 55 22 S89 9 105 18 S139 46 157 37 S195 27 211 41 S247 28 265 35 S285 50 300 44" /></svg>
+            <svg viewBox="0 0 300 60"><path d={sparkPath} /></svg>
           </div>
         </div>
       </section>
 
       <section className="section-head" id="history">
         <div><span className="eyebrow">HISTORICAL PERFORMANCE</span><h2>The annual tape</h2></div>
-        <p>Monthly snapshots · Hover the line for details</p>
+        <p>Daily closes · Hover the line for details</p>
       </section>
 
       <section className="cards">

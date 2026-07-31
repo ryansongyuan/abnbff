@@ -49,7 +49,7 @@ function MiniChart({ data }: { data: YearData }) {
 
   return (
     <div className="chart-wrap" onMouseLeave={() => setActive(null)}>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${data.year} ABNB daily closing price chart`}>
+      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={`${data.year} ABNB daily closing price chart`}>
         <defs>
           <linearGradient id={`fill-${data.year}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#ff385c" stopOpacity=".26" />

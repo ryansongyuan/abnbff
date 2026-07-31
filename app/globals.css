@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Airbnb Cereal";
+  src: url("/fonts/AirbnbCerealVF.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   --ink: #f6f3ee;
   --muted: #8f8e96;
@@ -16,10 +24,10 @@ body {
   margin: 0;
   background: #09090a;
   color: var(--ink);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Airbnb Cereal", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-button, a { font: inherit; }
+button, a, input, select, textarea { font: inherit; }
 a { color: inherit; text-decoration: none; }
 button { color: inherit; }
 
@@ -75,7 +83,7 @@ nav { position: sticky; top: 0; z-index: 20; height: 90px; display: grid; grid-t
 .cards { display: grid; gap: 20px; }
 .year-card { scroll-margin-top: 108px; background: linear-gradient(135deg, #171719, #111113); border: 1px solid #27272b; border-radius: 22px; overflow: hidden; animation: rise .5s ease both; animation-delay: var(--delay); }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
-.card-head { min-height: 108px; padding: 26px 30px 22px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.card-head { min-height: 108px; padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
 .year-row { display: flex; align-items: center; gap: 14px; }
 .year-row h2 { margin: 0; font-size: 34px; letter-spacing: -.04em; }
 .change { border-radius: 99px; padding: 5px 9px; font-size: 10px; font-weight: 700; }

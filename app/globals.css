@@ -33,11 +33,11 @@ body::before {
 }
 
 main { width: min(1380px, calc(100% - 64px)); margin: 0 auto; }
-nav { height: 90px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+nav { height: 90px; display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 11px; font-size: 14px; font-weight: 900; letter-spacing: .08em; }
-.brand > span:last-child > span { color: var(--accent); }
-.brand-mark, .ticker-icon { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); color: white; font-weight: 900; }
-.nav-center { display: flex; gap: 36px; color: #8c8b92; font-size: 13px; }
+.brand-name > span { color: var(--accent); }
+.brand-mark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); color: white; font-weight: 900; }
+.nav-center { display: flex; gap: 28px; color: #8c8b92; font-size: 13px; }
 .nav-center a { padding: 36px 0 32px; position: relative; }
 .nav-center a:hover, .nav-center .active { color: white; }
 .nav-center .active::after { content:""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); }
@@ -48,13 +48,12 @@ nav { height: 90px; display: flex; align-items: center; justify-content: space-b
 .hero { min-height: 530px; display: grid; grid-template-columns: 1.45fr .8fr; align-items: center; gap: 100px; padding: 70px 5% 50px; position: relative; overflow: hidden; }
 .hero::after { content: ""; width: 600px; height: 600px; position: absolute; right: -140px; top: -150px; border-radius: 50%; background: radial-gradient(circle, rgba(255,56,92,.12), transparent 68%); z-index: -1; }
 .ticker { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
-.ticker-icon { width: 42px; height: 42px; border-radius: 12px; }
+.ticker-logo { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: block; }
 .ticker div { display: grid; gap: 5px; }
 .ticker b { font-size: 14px; }
 .ticker span { font-size: 10px; color: var(--muted); letter-spacing: .12em; }
 .hero h1 { margin: 0; font-size: clamp(52px, 6.2vw, 96px); line-height: .95; letter-spacing: -.065em; font-weight: 500; }
 .hero h1 em { color: var(--accent); font-style: normal; }
-.hero-copy > p { color: #96959d; line-height: 1.75; max-width: 590px; margin: 30px 0 0; font-size: 15px; }
 .quote { background: rgba(21,21,23,.88); border: 1px solid #2d2d32; border-radius: 22px; padding: 27px; box-shadow: 0 30px 80px rgba(0,0,0,.4); }
 .live { color: #8b8a91; font-size: 9px; letter-spacing: .14em; display: flex; align-items: center; gap: 8px; }
 .live i { width: 6px; height: 6px; border-radius: 50%; background: #75757b; }
@@ -72,7 +71,7 @@ nav { height: 90px; display: flex; align-items: center; justify-content: space-b
 .section-head h2 { margin: 0; font-size: 28px; letter-spacing: -.035em; font-weight: 500; }
 .section-head p { color: #6f6e75; font-size: 10px; letter-spacing: .08em; }
 .cards { display: grid; gap: 20px; }
-.year-card { background: linear-gradient(135deg, #171719, #111113); border: 1px solid #27272b; border-radius: 22px; overflow: hidden; animation: rise .5s ease both; animation-delay: var(--delay); }
+.year-card { scroll-margin-top: 18px; background: linear-gradient(135deg, #171719, #111113); border: 1px solid #27272b; border-radius: 22px; overflow: hidden; animation: rise .5s ease both; animation-delay: var(--delay); }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 .card-head { min-height: 108px; padding: 26px 30px 22px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
 .year-row { display: flex; align-items: center; gap: 14px; }
@@ -132,12 +131,13 @@ footer > span { text-align: right; }
 
 @media (max-width: 600px) {
   main { width: calc(100% - 24px); }
-  nav { height: 72px; }
-  .nav-center { display: none; }
-  .watch { padding: 8px 12px; }
+  nav { height: 72px; grid-template-columns: auto minmax(0, 1fr); gap: 18px; }
+  .brand-name { display: none; }
+  .nav-center { gap: 18px; overflow-x: auto; scrollbar-width: none; justify-content: flex-end; }
+  .nav-center::-webkit-scrollbar { display: none; }
+  .nav-center a { padding-left: 2px; padding-right: 2px; }
   .hero { padding: 48px 4px 58px; }
   .hero h1 { font-size: clamp(48px, 15vw, 68px); }
-  .hero-copy > p { font-size: 13px; }
   .quote { padding: 21px; }
   .section-head { align-items: start; }
   .section-head p { display: none; }

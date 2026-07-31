@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type YearData = {
   year: number;
@@ -94,7 +94,7 @@ function MiniChart({ data }: { data: YearData }) {
 
 function YearCard({ data, index }: { data: YearData; index: number }) {
   return (
-    <article className="year-card" style={{ "--delay": `${index * 60}ms` } as React.CSSProperties}>
+    <article id={`year-${data.year}`} className="year-card" style={{ "--delay": `${index * 60}ms` } as React.CSSProperties}>
       <div className="card-head">
         <div>
           <span className="eyebrow">YEAR IN REVIEW</span>
@@ -126,21 +126,19 @@ function YearCard({ data, index }: { data: YearData; index: number }) {
 }
 
 export default function Home() {
-  const [visible, setVisible] = useState(3);
-  const shown = useMemo(() => YEARS.slice(0, visible), [visible]);
   return (
     <main>
       <nav>
-        <a className="brand" href="#top" aria-label="StayAlpha home"><span className="brand-mark">A</span><span>STAY<span>ALPHA</span></span></a>
-        <div className="nav-center"><a className="active" href="#history">Overview</a><a href="#history">History</a><a href="#about">About</a></div>
-        <button className="watch"><span>＋</span> Watchlist</button>
+        <a className="brand" href="#top" aria-label="ABNB Final Fight home"><span className="brand-mark">$</span><span className="brand-name">ABNB <span>FINAL FIGHT</span></span></a>
+        <div className="nav-center">
+          {YEARS.map((item, index) => <a className={index === 0 ? "active" : ""} href={`#year-${item.year}`} key={item.year}>{item.year}</a>)}
+        </div>
       </nav>
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <div className="ticker"><span className="ticker-icon">A</span><div><b>Airbnb, Inc.</b><span>NASDAQ · ABNB</span></div></div>
-          <h1>Years of travel.<br /><em>One clear view.</em></h1>
-          <p>Explore Airbnb’s stock journey, one year at a time. Compare momentum, spot annual peaks, and see the long view without the noise.</p>
+          <div className="ticker"><img className="ticker-logo" src="/airbnb-logo.png" alt="Airbnb logo" /><div><b>Airbnb, Inc.</b><span>NASDAQ · ABNB</span></div></div>
+          <h1>Latest close.<br /><em>$125.84</em></h1>
         </div>
         <div className="quote">
           <div className="live"><i /> MARKET CLOSED</div>
@@ -158,15 +156,13 @@ export default function Home() {
       </section>
 
       <section className="cards">
-        {shown.map((data, i) => <YearCard key={data.year} data={data} index={i} />)}
+        {YEARS.map((data, i) => <YearCard key={data.year} data={data} index={i} />)}
       </section>
 
-      {visible < YEARS.length && <button className="load" onClick={() => setVisible(YEARS.length)}>View full history <span>↓</span></button>}
-
       <footer id="about">
-        <div className="brand"><span className="brand-mark">A</span><span>STAY<span>ALPHA</span></span></div>
-        <p>ABNB, year by year.</p>
-        <span>Demo data · Not financial advice</span>
+        <div className="brand"><span className="brand-mark">$</span><span className="brand-name">ABNB <span>FINAL FIGHT</span></span></div>
+        <p>$$$</p>
+        <span>Real Market Data</span>
       </footer>
     </main>
   );

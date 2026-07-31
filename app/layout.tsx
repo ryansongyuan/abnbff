@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StayAlpha — ABNB Year by Year",
+  title: "ABNB Final Fight — Airbnb Stock History",
   description: "Airbnb stock performance, annual peaks, and historical price charts in one clear view.",
   icons: {
     icon: "/favicon.svg",

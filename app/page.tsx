@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import stockData from "./abnb-data.json";
 
+type PricePoint = { price: number; date: string };
+
 type YearData = {
   year: number;
   change: number;
@@ -12,7 +14,8 @@ type YearData = {
   high: number;
   volume: string;
   days: { date: string; price: number }[];
-  top: { price: number; date: string }[];
+  top: PricePoint[];
+  bottom: PricePoint[];
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -80,6 +83,30 @@ function MiniChart({ data }: { data: YearData }) {
   );
 }
 
+function PriceRanking({
+  title,
+  badge,
+  items,
+  tone,
+}: {
+  title: string;
+  badge: string;
+  items: PricePoint[];
+  tone: "peak" | "bottom";
+}) {
+  return (
+    <section className={`price-ranking ${tone}`}>
+      <div className="ranking-title"><span>{title}</span><small>{badge}</small></div>
+      {items.map((item, i) => (
+        <div className="price-extreme" key={`${item.date}-${item.price}`}>
+          <span className="rank">0{i + 1}</span>
+          <div><strong>${item.price.toFixed(2)}</strong><span>{formatDate(item.date)}</span></div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function YearCard({ data, index }: { data: YearData; index: number }) {
   return (
     <article id={`year-${data.year}`} className="year-card" style={{ "--delay": `${index * 60}ms` } as React.CSSProperties}>
@@ -99,14 +126,9 @@ function YearCard({ data, index }: { data: YearData; index: number }) {
             <div><span>Volume</span><strong>{data.volume}</strong></div>
           </div>
         </div>
-        <aside className="top-panel">
-          <div className="top-title"><span>Peak prices</span><small>TOP 3</small></div>
-          {data.top.map((item, i) => (
-            <div className="peak" key={item.date}>
-              <span className="rank">0{i + 1}</span>
-              <div><strong>${item.price.toFixed(2)}</strong><span>{formatDate(item.date)}</span></div>
-            </div>
-          ))}
+        <aside className="extremes-panel">
+          <PriceRanking title="Peak prices" badge="TOP 3" items={data.top} tone="peak" />
+          <PriceRanking title="Lowest prices" badge="BOTTOM 3" items={data.bottom} tone="bottom" />
         </aside>
       </div>
     </article>
@@ -174,11 +196,6 @@ export default function Home() {
         {YEARS.map((data, i) => <YearCard key={data.year} data={data} index={i} />)}
       </section>
 
-      <footer id="about">
-        <div className="brand"><span className="brand-mark">$</span><span className="brand-name">ABNB <span>FINAL FIGHT</span></span></div>
-        <p>$$$</p>
-        <span>Real Market Data</span>
-      </footer>
     </main>
   );
 }

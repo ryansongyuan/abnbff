@@ -58,3 +58,6 @@ next-env.d.ts
 *.zip
 *.tmp
 *.bak
+
+# isolated feature worktrees
+/.worktrees/

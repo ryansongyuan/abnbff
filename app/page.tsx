@@ -111,7 +111,7 @@ function YearCard({ data, index }: { data: YearData; index: number }) {
   return (
     <article id={`year-${data.year}`} className="year-card" style={{ "--delay": `${index * 60}ms` } as React.CSSProperties}>
       <div className="card-head">
-        <div>
+        <div className="year-summary">
           <span className="eyebrow">YEAR IN REVIEW</span>
           <div className="year-row"><h2>{data.year}</h2><span className={data.change >= 0 ? "change up" : "change down"}>{data.change >= 0 ? "↗" : "↘"} {Math.abs(data.change).toFixed(1)}%</span></div>
         </div>
@@ -166,7 +166,7 @@ export default function Home() {
   return (
     <main>
       <nav>
-        <a className="brand" href="#top" aria-label="ABNB Final Fight home"><span className="brand-mark">$</span><span className="brand-name">ABNB <span>FINAL FIGHT</span></span></a>
+        <a className="brand" href="#top" aria-label="ABNB Final Fight home"><span className="brand-name">ABNB <span>FINAL FIGHT</span></span></a>
         <div className="nav-center">
           {YEARS.map((item) => <a className={activeYear === item.year ? "active" : ""} href={`#year-${item.year}`} key={item.year}>{item.year}</a>)}
         </div>
@@ -196,6 +196,7 @@ export default function Home() {
         {YEARS.map((data, i) => <YearCard key={data.year} data={data} index={i} />)}
       </section>
 
+      <footer>A Ryan Website.</footer>
     </main>
   );
 }

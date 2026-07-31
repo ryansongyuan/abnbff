@@ -20,12 +20,12 @@ async function render() {
   );
 }
 
-test("renders Bottom 3 for every annual card without the legacy footer", async () => {
+test("renders Bottom 3 for every annual card with the Ryan footer", async () => {
   const response = await render();
   const html = await response.text();
 
   assert.equal(response.status, 200);
   assert.equal((html.match(/Lowest prices/g) ?? []).length, 6);
   assert.equal((html.match(/BOTTOM 3/g) ?? []).length, 6);
-  assert.doesNotMatch(html, /<footer\b/i);
+  assert.match(html, /<footer[^>]*>A Ryan Website\.<\/footer>/i);
 });

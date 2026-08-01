@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createStockService } from "../lib/live-stock.mjs";
+import { buildNasdaqHistoricalUrl, createStockService } from "../lib/live-stock.mjs";
 
 const source = {
   data: {
@@ -24,6 +24,13 @@ const fallback = {
   deltaPercent: 1.02,
   years: [],
 };
+
+test("uses Nasdaq's ISO date format for the historical range", () => {
+  const url = new URL(buildNasdaqHistoricalUrl(new Date("2026-08-01T12:00:00Z")));
+
+  assert.equal(url.searchParams.get("fromdate"), "2021-01-01");
+  assert.equal(url.searchParams.get("todate"), "2026-08-01");
+});
 
 test("caches a successful normalized response for 60 seconds", async () => {
   let calls = 0;

@@ -69,7 +69,7 @@ nav { position: sticky; top: 0; z-index: 20; height: 90px; display: grid; grid-t
 .live i { width: 6px; height: 6px; border-radius: 50%; background: #75757b; }
 .quote-line { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; margin: 17px 0 8px; }
 .quote-line strong { font-size: clamp(36px, 4vw, 54px); letter-spacing: -.05em; }
-.quote-line span { font-size: 12px; }
+.quote-line > span { font-size: 12px; }
 .price-value { display: inline-grid; position: relative; vertical-align: top; }
 .price-transition > span { grid-area: 1 / 1; }
 .price-old { animation: price-out .45s ease forwards; }

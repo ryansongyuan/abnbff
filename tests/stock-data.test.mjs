@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildStockData } from "../scripts/build-stock-data.mjs";
+import { buildStockData, getAvailableYears } from "../lib/stock-data.mjs";
 
 const source = {
   data: {
@@ -24,4 +24,28 @@ test("buildStockData ranks the three lowest intraday prices in ascending order",
     { price: 9, date: "01/04/2026" },
     { price: 10, date: "01/01/2026" },
   ]);
+});
+
+test("getAvailableYears returns source years newest first from 2021 onward", () => {
+  const multiYear = structuredClone(source);
+  multiYear.data.tradesTable.rows.push(
+    { date: "12/31/2025", close: "$10.00", open: "$9.00", high: "$11.00", low: "$8.00", volume: "100" },
+    { date: "12/31/2020", close: "$8.00", open: "$7.00", high: "$9.00", low: "$6.00", volume: "100" },
+  );
+
+  assert.deepEqual(getAvailableYears(multiYear), [2026, 2025]);
+});
+
+test("buildStockData rejects a response with no trading rows", () => {
+  assert.throws(
+    () => buildStockData({ data: { tradesTable: { rows: [] } } }),
+    /trading rows/i,
+  );
+});
+
+test("buildStockData rejects non-numeric market values", () => {
+  const invalid = structuredClone(source);
+  invalid.data.tradesTable.rows[0].close = "N/A";
+
+  assert.throws(() => buildStockData(invalid, [2026]), /numeric/i);
 });

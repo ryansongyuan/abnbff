@@ -1,25 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import stockData from "./abnb-data.json";
+import type { StockData, StockResponse, YearData } from "../lib/live-stock.mjs";
+import { getPriceDirection, type PriceDirection } from "../lib/price-transition.mjs";
 
 type PricePoint = { price: number; date: string };
 
-type YearData = {
-  year: number;
-  change: number;
-  open: number;
-  close: number;
-  low: number;
-  high: number;
-  volume: string;
-  days: { date: string; price: number }[];
-  top: PricePoint[];
-  bottom: PricePoint[];
-};
-
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const YEARS = stockData.years as YearData[];
+const INITIAL_DATA = stockData as StockData;
+
+type PriceTransition = {
+  previous: number;
+  direction: PriceDirection;
+  sequence: number;
+};
 
 function parseDate(value: string) {
   const [month, day, year] = value.split("/").map(Number);
@@ -28,6 +23,17 @@ function parseDate(value: string) {
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(parseDate(value));
+}
+
+function AnimatedPrice({ value, transition }: { value: number; transition: PriceTransition | null }) {
+  if (!transition) return <span className="price-value">${value.toFixed(2)}</span>;
+
+  return (
+    <span className={`price-value price-transition ${transition.direction}`} key={transition.sequence}>
+      <span className="price-old">${transition.previous.toFixed(2)}</span>
+      <span className="price-new">${value.toFixed(2)}</span>
+    </span>
+  );
 }
 
 function MiniChart({ data }: { data: YearData }) {
@@ -136,17 +142,65 @@ function YearCard({ data, index }: { data: YearData; index: number }) {
 }
 
 export default function Home() {
-  const [activeYear, setActiveYear] = useState(YEARS[0].year);
-  const latestDays = YEARS[0].days.slice(-35);
-  const sparkMin = Math.min(...latestDays.map((day) => day.price));
-  const sparkMax = Math.max(...latestDays.map((day) => day.price));
-  const sparkPath = latestDays.map((day, index) => {
-    const x = (index / (latestDays.length - 1)) * 300;
-    const y = 8 + ((sparkMax - day.price) / (sparkMax - sparkMin)) * 44;
-    return `${index ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-  const deltaClass = stockData.delta >= 0 ? "up-text" : "down";
-  const deltaSign = stockData.delta >= 0 ? "+" : "−";
+  const [liveData, setLiveData] = useState<StockData>(INITIAL_DATA);
+  const [activeYear, setActiveYear] = useState(INITIAL_DATA.years[0].year);
+  const [priceTransition, setPriceTransition] = useState<PriceTransition | null>(null);
+  const latestRef = useRef(INITIAL_DATA.latest);
+  const years = liveData.years;
+  const yearKey = years.map(({ year }) => year).join(",");
+  const sparkPath = useMemo(() => {
+    const latestDays = years[0]?.days.slice(-35) ?? [];
+    if (latestDays.length < 2) return "";
+    const sparkMin = Math.min(...latestDays.map((day) => day.price));
+    const sparkMax = Math.max(...latestDays.map((day) => day.price));
+    const spread = sparkMax - sparkMin || 1;
+    return latestDays.map((day, index) => {
+      const x = (index / (latestDays.length - 1)) * 300;
+      const y = 8 + ((sparkMax - day.price) / spread) * 44;
+      return `${index ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ");
+  }, [years]);
+  const deltaClass = liveData.delta >= 0 ? "up-text" : "down";
+  const deltaSign = liveData.delta >= 0 ? "+" : "−";
+
+  useEffect(() => {
+    let disposed = false;
+    let controller: AbortController | null = null;
+
+    const refresh = async () => {
+      controller?.abort();
+      controller = new AbortController();
+      try {
+        const response = await fetch("/api/stock", { signal: controller.signal, cache: "no-store" });
+        if (!response.ok) return;
+        const next = await response.json() as StockResponse;
+        if (!Number.isFinite(next.latest) || !Array.isArray(next.years) || next.years.length === 0 || disposed) return;
+
+        const direction = getPriceDirection(latestRef.current, next.latest);
+        if (direction) {
+          setPriceTransition({ previous: latestRef.current, direction, sequence: Date.now() });
+        }
+        latestRef.current = next.latest;
+        startTransition(() => setLiveData(next));
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") return;
+      }
+    };
+
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), 60_000);
+    return () => {
+      disposed = true;
+      controller?.abort();
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!priceTransition) return;
+    const timer = window.setTimeout(() => setPriceTransition(null), 450);
+    return () => window.clearTimeout(timer);
+  }, [priceTransition]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -156,31 +210,31 @@ export default function Home() {
       },
       { rootMargin: "-95px 0px -55% 0px", threshold: [0.05, 0.2, 0.5] },
     );
-    YEARS.forEach(({ year }) => {
+    years.forEach(({ year }) => {
       const element = document.getElementById(`year-${year}`);
       if (element) observer.observe(element);
     });
     return () => observer.disconnect();
-  }, []);
+  }, [yearKey, years]);
 
   return (
     <main>
       <nav>
         <a className="brand" href="#top" aria-label="ABNB Final Fight home"><span className="brand-name">ABNB <span>FINAL FIGHT</span></span></a>
         <div className="nav-center">
-          {YEARS.map((item) => <a className={activeYear === item.year ? "active" : ""} href={`#year-${item.year}`} key={item.year}>{item.year}</a>)}
+          {years.map((item) => <a className={activeYear === item.year ? "active" : ""} href={`#year-${item.year}`} key={item.year}>{item.year}</a>)}
         </div>
       </nav>
 
       <section className="hero" id="top">
         <div className="hero-copy">
           <div className="ticker"><img className="ticker-logo" src="/airbnb-logo.png" alt="Airbnb logo" /><div><b>Airbnb, Inc.</b><span>NASDAQ · ABNB</span></div></div>
-          <h1>Latest close.<br /><em>${stockData.latest.toFixed(2)}</em></h1>
+          <h1>Latest close.<br /><em><AnimatedPrice value={liveData.latest} transition={priceTransition} /></em></h1>
         </div>
-        <div className="quote">
+        <div className={`quote${priceTransition ? ` quote-updating-${priceTransition.direction}` : ""}`}>
           <div className="live"><i /> MARKET CLOSED</div>
-          <div className="quote-line"><strong>${stockData.latest.toFixed(2)}</strong><span className={deltaClass}>{deltaSign}{Math.abs(stockData.delta).toFixed(2)} · {Math.abs(stockData.deltaPercent).toFixed(2)}%</span></div>
-          <div className="quote-meta"><span>Nasdaq · {formatDate(stockData.updated)}</span><span>USD</span></div>
+          <div className="quote-line"><strong><AnimatedPrice value={liveData.latest} transition={priceTransition} /></strong><span className={deltaClass}>{deltaSign}{Math.abs(liveData.delta).toFixed(2)} · {Math.abs(liveData.deltaPercent).toFixed(2)}%</span></div>
+          <div className="quote-meta"><span>Nasdaq · {formatDate(liveData.updated)}</span><span>USD</span></div>
           <div className="spark">
             <svg viewBox="0 0 300 60"><path d={sparkPath} /></svg>
           </div>
@@ -193,7 +247,7 @@ export default function Home() {
       </section>
 
       <section className="cards">
-        {YEARS.map((data, i) => <YearCard key={data.year} data={data} index={i} />)}
+        {years.map((data, i) => <YearCard key={data.year} data={data} index={i} />)}
       </section>
 
       <footer>A Ryan Website.</footer>

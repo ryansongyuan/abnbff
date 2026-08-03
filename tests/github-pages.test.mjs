@@ -13,3 +13,15 @@ test("GitHub Pages entry redirects and offers a manual canonical link", async ()
   assert.match(html, /rel=["']canonical["']/i);
   assert.match(html, /noindex/i);
 });
+
+test("GitHub Pages workflow publishes the isolated redirect artifact", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/pages.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(workflow, /actions\/configure-pages@v5/);
+  assert.match(workflow, /actions\/upload-pages-artifact@v3/);
+  assert.match(workflow, /actions\/deploy-pages@v4/);
+  assert.match(workflow, /path:\s*["']?\.\/pages-dist["']?/);
+});
